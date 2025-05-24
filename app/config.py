@@ -1,7 +1,5 @@
-from warnings import deprecated
 from fastapi.security import OAuth2PasswordBearer
 from pydantic_settings import BaseSettings
-import os
 from dotenv import load_dotenv
 from passlib.context import CryptContext
 
