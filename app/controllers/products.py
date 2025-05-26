@@ -17,7 +17,7 @@ from app.utils import get_current_user
 from app.validators import ProductCreate, ProductUpdate  # ⇦ returns the current user
 
 def create_product(db: Session, product_in: ProductCreate) -> Product:
-    product = Product(**product_in.dict())
+    product = Product(**product_in.model_dump())  # ⇦ use model_dump() for Pydantic v2
     db.add(product)
     db.commit()
     db.refresh(product)
