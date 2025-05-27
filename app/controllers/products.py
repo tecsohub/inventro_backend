@@ -81,7 +81,7 @@ def delete_product(db: Session, product_id: int) -> None:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Error deleting product: {e.orig}",
+            detail=f"Error product deletion: {e.orig}",
         )
     except Exception as e:
         db.rollback()
