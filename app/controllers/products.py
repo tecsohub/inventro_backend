@@ -54,12 +54,38 @@ def update_product(db: Session, product_id: int, update_in: ProductUpdate) -> Pr
     # for field, value in update_in.dict(exclude_unset=True).items():
     for field, value in update_in.model_dump(exclude_unset=True).items():
         setattr(product, field, value)
-    db.commit()
-    db.refresh(product)
+    try:
+        db.commit()
+        db.refresh(product)
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Error updating product: {e.orig}",
+        )
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error updating product: {e}",
+        )
     return product
 
 
 def delete_product(db: Session, product_id: int) -> None:
     product = get_product(db, product_id)
-    db.delete(product)
-    db.commit()
+    try:
+        db.delete(product)
+        db.commit()
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Error deleting product: {e.orig}",
+        )
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error deleting product: {e}",
+        )
