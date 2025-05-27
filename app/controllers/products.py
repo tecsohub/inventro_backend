@@ -2,6 +2,7 @@ from typing import List
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 # ────────────────────────────────────────────────────────────────────────────────
 # NOTE:
@@ -18,8 +19,21 @@ from app.validators import ProductCreate, ProductUpdate  # ⇦ returns the curre
 
 def create_product(db: Session, product_in: ProductCreate) -> Product:
     product = Product(**product_in.model_dump())  # ⇦ use model_dump() for Pydantic v2
-    db.add(product)
-    db.commit()
+    try:
+        db.add(product)
+        db.commit()
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Error creating product: {e.orig}",
+        )
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error creating product: {e}",
+        )
     db.refresh(product)
     return product
 
