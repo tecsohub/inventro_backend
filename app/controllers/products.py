@@ -61,7 +61,7 @@ def update_product(db: Session, product_id: int, update_in: ProductUpdate) -> Pr
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Error updating product: {e.orig}",
+            detail=f"Error product updation: {e.orig}",
         )
     except Exception as e:
         db.rollback()
