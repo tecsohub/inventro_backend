@@ -1,3 +1,4 @@
+import os
 from fastapi.security import OAuth2PasswordBearer
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
@@ -9,7 +10,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 class Settings(BaseSettings):
-    SQLALCHEMY_DATABASE_URL: str = "sqlite:///./inventory.db"
+    database_url: str = os.getenv("DATABASE_URL", "sqlite:///./inventory.db")  # Fallback for local
     # JWT Authentication
     SECRET_KEY: str = "IAMAUTH"
     ALGORITHM: str = "HS256"
