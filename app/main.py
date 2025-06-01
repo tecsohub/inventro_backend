@@ -116,11 +116,11 @@ async def get_profile(current_user: dict = Depends(get_current_user)):
     user = current_user["user"]
     role = current_user["role"]
     if role == "admin":
-        return {"name": user.name, "email": user.email}
+        return {"name": user.name, "email": user.email, "id": user.id}
     elif role == "manager":
-        return {"name": user.name, "email": user.email, "company_name": user.company_name}
+        return {"name": user.name, "email": user.email, "company_name": user.company_name, "id": user.id}
     elif role == "employee":
-        return {"name": user.name, "email": user.email, "department": user.department}
+        return {"name": user.name, "email": user.email, "department": user.department, "id": user.id}
 
 
 app.include_router(product_router)
