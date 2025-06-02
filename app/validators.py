@@ -39,13 +39,8 @@ class _ProductBase(BaseModel):
     manager_id: int  # Foreign key to Manager
 
 
-class ProductCreate(BaseModel):
-    part_number: str
-    description: Optional[str] = None
-    location: Optional[str] = None
-    quantity: int
-    batch_number: int
-    expiry_date: datetime
+class ProductCreate(_ProductBase):
+    pass
 
 class ProductUpdate(BaseModel):
     description: Optional[str] = None
