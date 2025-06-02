@@ -17,7 +17,7 @@ from app.models import Product                # ⇦ SQLAlchemy model shown above
 from app.utils import get_current_user
 from app.validators import ProductCreate, ProductUpdate  # ⇦ returns the current user
 
-def create_product(db: Session, product_in: ProductCreate, manager_id: int) -> Product:
+def create_product(db: Session, product_in: ProductCreate) -> Product:
     product = Product(**product_in.model_dump())  # ⇦ use model_dump() for Pydantic v2
     try:
         db.add(product)
