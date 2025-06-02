@@ -26,6 +26,7 @@ class Manager(Base):
     otp = Column(String, nullable=True)
     otp_created_at = Column(DateTime, nullable=True)
     employees = relationship("Employee", back_populates="manager")
+    products = relationship("Product", back_populates="manager", cascade="all, delete-orphan")
 
 class Employee(Base):
     __tablename__ = "employees"
@@ -67,6 +68,6 @@ class Product(Base):
     batch_number = Column(Integer)
     updated_on = Column(DateTime(timezone=True), server_default=func.now())
     expiry_date = Column(DateTime(timezone=True))
-    # manager_id = Column(Integer, ForeignKey("managers.id"))
+    manager_id = Column(Integer, ForeignKey("managers.id"))
 
-    # manager = relationship("Manager", back_populates="products", cascade="all, delete-orphan")
+    manager = relationship("Manager", back_populates="products")

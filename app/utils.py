@@ -47,7 +47,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
 
     if user is None:
         raise credentials_exception
-    return {"user": user, "role": role}
+    return {"user": user, "role": role, "email": email, "id": user.id}
 
 def roles_required(required_roles: List[str]):
     async def role_checker(current_user: dict = Depends(get_current_user)):

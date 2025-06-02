@@ -36,9 +36,16 @@ class _ProductBase(BaseModel):
     quantity: int
     batch_number: int
     expiry_date: datetime
+    manager_id: int  # Foreign key to Manager
 
-class ProductCreate(_ProductBase):
-    pass
+
+class ProductCreate(BaseModel):
+    part_number: str
+    description: Optional[str] = None
+    location: Optional[str] = None
+    quantity: int
+    batch_number: int
+    expiry_date: datetime
 
 class ProductUpdate(BaseModel):
     description: Optional[str] = None
@@ -52,4 +59,4 @@ class ProductRead(_ProductBase):
     updated_on: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True

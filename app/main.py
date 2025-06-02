@@ -46,7 +46,7 @@ async def register_manager(manager_data: ManagerCreate, db: Session = Depends(ge
     return json.dumps({"message": f"Manager {new_manager.name} registered successfully", "id": new_manager.id})
 
 # Employee registration endpoint
-@app.post("/register/employee", status_code=status.HTTP_201_CREATED)
+@app.post("/register/employee", status_code=status.HTTP_201_CREATED, dependencies=[Depends(roles_required("manager"))])
 async def register_employee(employee_data: EmployeeCreate, db: Session = Depends(get_db)):
     # Check email uniqueness
     if not is_email_unique(employee_data.email, db):

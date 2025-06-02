@@ -10,6 +10,14 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 class Settings(BaseSettings):
+    # Application settings
+    app_name: str = "Inventory Management System"
+    app_version: str = "1.0.0"
+    app_description: str = "A simple inventory management system for managing products, employees, and managers."
+    app_host: str = os.getenv("APP_HOST", "localhost")
+    app_port: int = int(os.getenv("APP_PORT", 8000))
+    # Database settings for postgres
+
     database_url: str = os.getenv("DATABASE_URL", "sqlite:///./inventory.db")  # Fallback for local
     # JWT Authentication
     SECRET_KEY: str = "IAMAUTH"
