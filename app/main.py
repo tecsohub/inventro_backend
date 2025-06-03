@@ -80,6 +80,12 @@ async def register_employee(employee_data: EmployeeCreate, db: Session = Depends
 
     return {"message": f"Employee {new_employee.name} registered successfully", "employee_id": new_employee.id}
 
+@app.get("/employees", response_model=list[EmployeeCreate], dependencies=[Depends(roles_required("manager"))])
+async def list_employees(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    """ List all employees under the current manager. """
+    employees = db.query(Employee).filter(Employee.manager_id == current_user["user"].id).all()
+    return employees
+
 @app.post('/token', response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user_data = await authenticate_user(form_data.username, form_data.password, db)
