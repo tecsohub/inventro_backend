@@ -10,7 +10,7 @@ from app.utils import get_current_user, roles_required
 from app.validators import ProductCreate, ProductRead, ProductUpdate
 
 router = APIRouter(prefix="/products", tags=["Products"])
-@router.get("/", response_model=List[ProductRead], dependencies=[Depends(roles_required(["user", "admin", "manager"]))])
+@router.get("/", response_model=List[ProductRead], dependencies=[Depends(roles_required(["employee", "admin", "manager"]))])
 def list_products(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     """ List all products for the current user.
     If the user is a manager, only their products are returned.
@@ -20,7 +20,7 @@ def list_products(db: Session = Depends(get_db), current_user: dict = Depends(ge
     if current_user['role'] == 'manager':
         # Managers can only see their own products
         return get_products(db, manager_id=current_user['id'])
-    elif current_user['role'] == 'user':
+    elif current_user['role'] == 'employee':
         # Users can see products, but not create or modify them
         return get_products(db, manager_id=current_user['manager_id'])
     elif current_user['role'] == 'admin':
@@ -30,7 +30,7 @@ def list_products(db: Session = Depends(get_db), current_user: dict = Depends(ge
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied for this role")
 
 
-@router.get("/{product_id}", response_model=ProductRead, dependencies=[Depends(roles_required(["user", "admin", "manager"]))])
+@router.get("/{product_id}", response_model=ProductRead, dependencies=[Depends(roles_required(["employee", "admin", "manager"]))])
 def read_product(product_id: int, db: Session = Depends(get_db)):
     return get_product(db, product_id)
 

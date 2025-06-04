@@ -48,6 +48,22 @@ class Employee(Base):
 
     manager = relationship("Manager", back_populates="employees")
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "email": self.email,
+            "name": self.name,
+            "role": self.role,
+            "department": self.department,
+            "phone": self.phone,
+            "profile_picture": self.profile_picture,
+            "is_verified": self.is_verified,
+            "manager_id": self.manager_id,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "token_expiry": self.token_expiry.isoformat() if self.token_expiry else None,
+        }
+
 class Admin(Base):
     __tablename__ = "admins"
 

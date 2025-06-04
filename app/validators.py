@@ -29,6 +29,15 @@ class EmployeeCreate(BaseModel):
     profile_picture: str | None = None
     manager_id: int  # Foreign key to Manager
 
+class EmployeeRead(BaseModel):
+    email: EmailStr
+    name: str
+    role: str | None = None
+    department: str | None = None
+    phone: str | None = None
+    profile_picture: str | None = None
+    manager_id: int  # Foreign key to Manager
+
 class _ProductBase(BaseModel):
     part_number: str
     description: Optional[str] = None
