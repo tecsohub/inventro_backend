@@ -48,6 +48,7 @@ class Employee(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
+    staff_id = Column(String, nullable=True)  # Optional staff ID
     password = Column(String)
     name = Column(String)
     role = Column(String)
