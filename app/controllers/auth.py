@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.auth import authenticate_user
 from app.config import settings, pwd_context
 from app.database import get_db
-from app.models import Employee, Manager
+from app.models import Employee, Manager, Company # Added Company
 from app.utils import create_access_token, is_email_unique
 from app.validators import Token, EmployeeCreate, ManagerCreate
 
@@ -27,17 +27,25 @@ async def login_for_access_token_logic(form_data: OAuth2PasswordRequestForm = De
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+
 async def register_manager_logic(manager_data: ManagerCreate, db: Session = Depends(get_db)):
     if not is_email_unique(manager_data.email, db):
         raise HTTPException(status_code=400, detail="Email already registered")
+
+    company = db.query(Company).filter(Company.id == manager_data.company_id).first()
+    if not company:
+        raise HTTPException(status_code=400, detail="Invalid company_id: Company does not exist")
 
     hashed_password = pwd_context.hash(manager_data.password)
     new_manager = Manager(
         email=manager_data.email,
         password=hashed_password,
         name=manager_data.name,
-        company_name=manager_data.company_name,
-        company_size=manager_data.company_size,
+        # company_name=manager_data.company_name, # Removed
+        # company_size=manager_data.company_size, # Removed
+        company_id=manager_data.company_id, # Added
+        phone=manager_data.phone, # Added from validator
+        profile_picture=manager_data.profile_picture, # Added from validator
         is_verified=False,
         is_approved=False
     )

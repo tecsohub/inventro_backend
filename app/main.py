@@ -13,6 +13,7 @@ from app.models import Employee, Manager
 from app.utils import create_access_token, get_current_user, is_email_unique, roles_required
 from app.validators import EmployeeCreate, ManagerCreate, Token
 from app.routes.auth import router as auth_router
+from app.routes.companies import router as company_router
 from app.routes.manager import router as manager_router
 from app.routes.products import router as product_router
 from app.routes.users import router as user_router
@@ -29,6 +30,7 @@ async def admin_dashboard(current_user: dict = Depends(roles_required("admin")))
 
 
 app.include_router(auth_router)
+app.include_router(company_router)
 app.include_router(manager_router)
 app.include_router(product_router)
 app.include_router(user_router)

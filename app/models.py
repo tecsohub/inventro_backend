@@ -7,6 +7,19 @@ from sqlalchemy.sql import func
 from app.database import Base
 
 
+class Company(Base):
+    __tablename__ = "companies"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+    size = Column(Integer)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    managers = relationship("Manager", back_populates="company", cascade="all, delete-orphan")
+    products = relationship("Product", back_populates="company", cascade="all, delete-orphan")
+
+
 class Manager(Base):
     __tablename__ = "managers"
 
@@ -14,8 +27,6 @@ class Manager(Base):
     email = Column(String, unique=True, index=True)
     password = Column(String)
     name = Column(String)
-    company_name = Column(String)
-    company_size = Column(Integer)
     is_verified = Column(Boolean, default=False)
     is_approved = Column(Boolean, default=False)
     phone = Column(String, nullable=True)
@@ -25,8 +36,12 @@ class Manager(Base):
 
     otp = Column(String, nullable=True)
     otp_created_at = Column(DateTime, nullable=True)
+
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    company = relationship("Company", back_populates="managers")
+
     employees = relationship("Employee", back_populates="manager")
-    products = relationship("Product", back_populates="manager", cascade="all, delete-orphan")
+
 
 class Employee(Base):
     __tablename__ = "employees"
@@ -84,6 +99,6 @@ class Product(Base):
     batch_number = Column(Integer)
     updated_on = Column(DateTime(timezone=True), server_default=func.now())
     expiry_date = Column(DateTime(timezone=True))
-    manager_id = Column(Integer, ForeignKey("managers.id"))
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
 
-    manager = relationship("Manager", back_populates="products")
+    company = relationship("Company", back_populates="products")
