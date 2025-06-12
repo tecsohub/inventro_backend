@@ -1,20 +1,33 @@
 from datetime import datetime
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, EmailStr  # Ensure EmailStr is imported
+from typing import Optional, List
 
 class Token(BaseModel):
     access_token: str
     token_type: str
 
-from pydantic import BaseModel, EmailStr
+# Company Pydantic Models
+class CompanyBase(BaseModel):
+    name: str
+    size: int
+
+class CompanyCreate(CompanyBase):
+    pass
+
+class CompanyRead(CompanyBase):
+    id: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
 
 # Manager registration request model
 class ManagerCreate(BaseModel):
     email: EmailStr
     password: str
     name: str
-    company_name: str
-    company_size: int
+    company_id: int  # Added
     phone: str | None = None
     profile_picture: str | None = None
 
@@ -45,7 +58,7 @@ class _ProductBase(BaseModel):
     quantity: int
     batch_number: int
     expiry_date: datetime
-    manager_id: int  # Foreign key to Manager
+    company_id: int  # Added
 
 
 class ProductCreate(_ProductBase):
