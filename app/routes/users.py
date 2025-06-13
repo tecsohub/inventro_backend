@@ -15,7 +15,7 @@ async def get_profile(current_user: dict = Depends(get_current_user)):
     if role == "admin":
         return {"name": user.name, "email": user.email, "id": user.id}
     elif role == "manager":
-        return {"name": user.name, "email": user.email, "company_name": user.company.name, "id": user.id}
+        return {"name": user.name, "email": user.email, "company": user.company, "id": user.id}
     elif role == "employee":
         return user.to_dict()
 
