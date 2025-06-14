@@ -17,6 +17,6 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 async def register_manager(manager_data: ManagerCreate, db: Session = Depends(get_db)):
     return await register_manager_logic(manager_data, db)
 
-@router.post("/register/employee", status_code=status.HTTP_201_CREATED, dependencies=[Depends(roles_required("manager"))])
+@router.post("/register/employee", status_code=status.HTTP_201_CREATED, dependencies=[Depends(roles_required(["manager"]))])
 async def register_employee(employee_data: EmployeeCreate, db: Session = Depends(get_db)):
     return await register_employee_logic(employee_data, db)

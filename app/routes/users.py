@@ -21,5 +21,5 @@ async def get_profile(current_user: dict = Depends(get_current_user)):
 
 # Employee-only endpoint
 @router.get("/tasks")
-async def employee_tasks(current_user: dict = Depends(roles_required("employee"))):
+async def employee_tasks(current_user: dict = Depends(roles_required(["employee"]))):
     return {"message": f"Welcome Employee {current_user['user'].name}, Dept: {current_user['user'].department}"}

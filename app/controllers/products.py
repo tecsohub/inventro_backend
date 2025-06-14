@@ -45,7 +45,7 @@ def create_product(db: Session, product_in: ProductCreate) -> Product:
     return product
 
 
-def get_products(db: Session, company_id: int = None) -> List[Product]:
+def get_products(db: Session, company_id: Optional[int] = None) -> List[Product]:
     if company_id is None:
         # This case might be for admins, or needs further refinement
         # based on exact requirements for listing all products across all companies.
