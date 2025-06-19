@@ -23,7 +23,7 @@ async def create_company(
     """
     return create_company_logic(db, company_in)
 
-@router.get("/{company_id}", response_model=CompanyRead, dependencies=[Depends(roles_required(["employee", "manager", "admin"]))]) # Managers might need to see their company details
+@router.get("/{company_id}", response_model=CompanyRead) # Managers might need to see their company details
 async def read_company(
     company_id: int,
     db: Session = Depends(get_db),
