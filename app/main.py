@@ -15,7 +15,7 @@ create_tables()
 
 # Admin-only endpoint
 @app.get("/admin/dashboard")
-async def admin_dashboard(current_user: dict = Depends(roles_required("admin"))):
+async def admin_dashboard(current_user: dict = Depends(roles_required(["admin"]))):
     return {"message": f"Welcome Admin {current_user['user'].name}"}
 
 

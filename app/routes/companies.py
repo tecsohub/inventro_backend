@@ -26,19 +26,11 @@ async def create_company(
 @router.get("/{company_id}", response_model=CompanyRead) # Managers might need to see their company details
 async def read_company(
     company_id: int,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     """
     Get a specific company by ID.
     """
-    user_obj = current_user['user']
-    if current_user['role'] == 'manager':
-        if user_obj.company_id != company_id:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to view this company")
-    elif current_user['role'] == 'employee':
-        if user_obj.manager.company_id != company_id:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to view this company")
     return get_company_logic(db, company_id)
 
 @router.get("/", response_model=List[CompanyRead], dependencies=[Depends(roles_required(["admin"]))]) # Listing all companies usually for admin
