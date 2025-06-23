@@ -15,7 +15,7 @@ class CompanyCreate(CompanyBase):
     pass
 
 class CompanyRead(CompanyBase):
-    id: int
+    id: str
     created_at: datetime
     updated_at: Optional[datetime] = None
 

@@ -10,7 +10,7 @@ from app.database import Base
 class Company(Base):
     __tablename__ = "companies"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String(10), primary_key=True, index=True)  # Changed to String(10)
     name = Column(String)
     size = Column(Integer)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -37,7 +37,7 @@ class Manager(Base):
     otp = Column(String, nullable=True)
     otp_created_at = Column(DateTime, nullable=True)
 
-    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    company_id = Column(String(10), ForeignKey("companies.id"), nullable=False)
     company = relationship("Company", back_populates="managers")
 
     employees = relationship("Employee", back_populates="manager")
@@ -100,6 +100,6 @@ class Product(Base):
     batch_number = Column(Integer)
     updated_on = Column(DateTime(timezone=True), server_default=func.now())
     expiry_date = Column(DateTime(timezone=True))
-    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    company_id = Column(String(10), ForeignKey("companies.id"), nullable=False)
 
     company = relationship("Company", back_populates="products")

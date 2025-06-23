@@ -1,4 +1,6 @@
 from typing import List, Optional
+import random
+import string
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
@@ -6,6 +8,9 @@ from sqlalchemy.exc import IntegrityError
 
 from app.models import Company
 from app.validators import CompanyCreate
+
+def generate_company_id(length=10):
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
 def create_company_logic(db: Session, company_in: CompanyCreate) -> Company:
     # Check if company with the same name already exists (optional, based on business rules)
@@ -16,7 +21,9 @@ def create_company_logic(db: Session, company_in: CompanyCreate) -> Company:
             detail=f"Company with name '{company_in.name}' already exists.",
         )
 
-    company = Company(**company_in.model_dump())
+    company_data = company_in.model_dump()
+    company_data["id"] = generate_company_id()
+    company = Company(**company_data)
     try:
         db.add(company)
         db.commit()
