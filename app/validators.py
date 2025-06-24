@@ -27,7 +27,7 @@ class ManagerCreate(BaseModel):
     email: EmailStr
     password: str
     name: str
-    company_id: int  # Added
+    company_id: str  # Added
     phone: str | None = None
     profile_picture: str | None = None
 
@@ -58,7 +58,7 @@ class _ProductBase(BaseModel):
     quantity: int
     batch_number: int
     expiry_date: datetime
-    company_id: int  # Added
+    company_id: str  # Added
 
 
 class ProductCreate(_ProductBase):

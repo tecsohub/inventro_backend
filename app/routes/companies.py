@@ -25,7 +25,7 @@ async def create_company(
 
 @router.get("/{company_id}", response_model=CompanyRead) # Managers might need to see their company details
 async def read_company(
-    company_id: int,
+    company_id: str,
     db: Session = Depends(get_db)
 ):
     """
