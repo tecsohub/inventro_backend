@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from fastapi import Depends, HTTPException, status
-from jose import JWTError
+from jose import JWTError, ExpiredSignatureError
 import jwt
 from sqlalchemy.orm import Session
 
@@ -35,6 +35,12 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
             raise credentials_exception
     except JWTError:
         raise credentials_exception
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
     if role == "admin":
         user = db.query(Admin).filter(Admin.email == email).first()
