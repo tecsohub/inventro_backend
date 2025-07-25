@@ -50,3 +50,10 @@ def get_company_logic(db: Session, company_id: int) -> Optional[Company]:
 
 def get_companies_logic(db: Session, skip: int = 0, limit: int = 100) -> List[Company]:
     return db.query(Company).offset(skip).limit(limit).all()
+
+def get_employees_and_managers_logic(db: Session, company_id: int) -> int:
+    company = get_company_logic(db, company_id)
+    return {
+        "employees": company.number_of_employees if company else 0,
+        "managers": company.number_of_managers if company else 0,
+    }

@@ -19,6 +19,16 @@ class Company(Base):
     managers = relationship("Manager", back_populates="company", cascade="all, delete-orphan")
     products = relationship("Product", back_populates="company", cascade="all, delete-orphan")
 
+    def __repr__(self):
+        return f"<Company(id={self.id}, name={self.name}, size={self.size})>"
+
+    @property
+    def number_of_managers(self):
+        return len(self.managers)
+
+    @property
+    def number_of_employees(self):
+        return sum(manager.number_of_employees for manager in self.managers) if self.managers else 0
 
 class Manager(Base):
     __tablename__ = "managers"
@@ -42,6 +52,9 @@ class Manager(Base):
 
     employees = relationship("Employee", back_populates="manager")
 
+    @property
+    def number_of_employees(self):
+        return len(self.employees)
 
 class Employee(Base):
     __tablename__ = "employees"
