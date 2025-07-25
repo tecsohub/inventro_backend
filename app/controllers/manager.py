@@ -9,6 +9,8 @@ async def list_employees_logic(current_user: dict, db: Session):
     """
     manager_id = current_user["user"].id
     employees = db.query(Employee).filter(Employee.manager_id == manager_id).all()
+    if len(employees) == 0:
+        return []
 
     if not employees:
         return {"message": "No employees found for this manager."}
