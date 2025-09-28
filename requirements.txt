@@ -8,13 +8,13 @@ cryptography==44.0.2
 dnspython==2.7.0
 ecdsa==0.19.1
 email_validator==2.2.0
+cloud-sql-python-connector[pg8000]
 fastapi==0.115.12
 greenlet==3.1.1
 h11==0.14.0
 httptools==0.6.4
 idna==3.10
 passlib==1.7.4
-psycopg2-binary==2.9.10
 pyasn1==0.4.8
 pycparser==2.22
 pydantic==2.11.2

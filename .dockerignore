@@ -1,0 +1,20 @@
+# Git
+.git
+.gitignore
+
+# Virtual environment
+.venv
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# IDE and editor folders
+.idea/
+.vscode/
+
+# Environment files - should be passed at runtime
+.env
+*.env.*
