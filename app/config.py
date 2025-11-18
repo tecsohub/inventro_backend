@@ -16,9 +16,18 @@ class Settings(BaseSettings):
     app_description: str = "A simple inventory management system for managing products, employees, and managers."
     app_host: str = os.getenv("APP_HOST", "localhost")
     app_port: int = int(os.getenv("APP_PORT", 8000))
-    # Database settings for postgres
 
+    # Database settings for postgres
     database_url: str = os.getenv("DATABASE_URL", "sqlite:///./inventory.db")  # Fallback for local
+
+    # Cloud SQL settings (optional)
+    is_cloud_sql: str = os.getenv("IS_CLOUD_SQL", "false")
+    instance_connection_name: str = os.getenv("INSTANCE_CONNECTION_NAME", "")
+    db_user: str = os.getenv("DB_USER", "")
+    db_pass: str = os.getenv("DB_PASS", "")
+    db_name: str = os.getenv("DB_NAME", "")
+    db_driver: str = os.getenv("DB_DRIVER", "")
+
     # JWT Authentication
     SECRET_KEY: str = "IAMAUTH"
     ALGORITHM: str = "HS256"
@@ -26,6 +35,7 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+        extra = "ignore"  # Allow extra fields from environment
 
 settings = Settings()
 if not settings.SECRET_KEY:

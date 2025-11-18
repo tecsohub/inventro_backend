@@ -1,0 +1,6 @@
+product_name,product_type,location,serial_number,batch_number,lot_number,expiry,condition,quantity,price,payment_status,receiver,receiver_contact,remark
+iPhone 14,Smartphone,Warehouse A,SN001,BATCH001,LOT001,2025-12-31,New,10,999.99,Paid,John Doe,+1234567890,Premium smartphone
+Samsung Galaxy S23,Smartphone,Warehouse B,SN002,BATCH002,LOT002,2024-06-15,Refurbished,5,799.99,Pending,Jane Smith,+0987654321,Refurbished unit
+MacBook Pro,Laptop,Store Front,SN003,BATCH003,LOT003,2026-01-01,New,3,2499.99,Unpaid,Tech Corp,+1111222333,High-performance laptop
+Dell Monitor,Monitor,Warehouse A,SN004,BATCH004,LOT004,,Good,15,299.99,Paid,Office Supplies,+4444555666,24-inch monitor
+Wireless Mouse,Accessory,Store Front,SN005,BATCH005,LOT005,2025-03-15,New,50,29.99,Paid,Retail Customer,+7777888999,Ergonomic wireless mouse
