@@ -27,7 +27,7 @@ load_dotenv(dotenv_path)
 # Import your Base and models
 from app.database import Base
 # Ensure all your models are imported here so Alembic can see them
-from app.models import Company, Manager, Employee, Admin, Product # Add all your models
+from app.models import Company, Manager, Employee, Admin, Product, NewProduct, BulkUpload # Add all your models
 
 # add your model's MetaData object here
 # for 'autogenerate' support
@@ -41,7 +41,7 @@ target_metadata = Base.metadata
 # ... etc.
 
 def get_url():
-    return os.getenv("DATABASE_URL")
+    return os.getenv("DATABASE_URL", "sqlite:///./inventory.db")
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.

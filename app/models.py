@@ -1,5 +1,5 @@
 from calendar import c
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, Numeric
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -18,6 +18,7 @@ class Company(Base):
 
     managers = relationship("Manager", back_populates="company", cascade="all, delete-orphan")
     products = relationship("Product", back_populates="company", cascade="all, delete-orphan")
+    new_products = relationship("NewProduct", back_populates="company", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Company(id={self.id}, name={self.name}, size={self.size})>"
@@ -116,3 +117,61 @@ class Product(Base):
     company_id = Column(String(10), ForeignKey("companies.id"), nullable=False)
 
     company = relationship("Company", back_populates="products")
+
+
+class NewProduct(Base):
+    __tablename__ = "new_products"
+
+    id = Column(Integer, primary_key=True, index=True)
+    product_name = Column(String, nullable=False)
+    product_type = Column(String, nullable=False)
+    location = Column(String, nullable=True)
+    serial_number = Column(String, nullable=True)
+    batch_number = Column(String, nullable=True)
+    lot_number = Column(String, nullable=True)
+    expiry = Column(DateTime(timezone=True), nullable=True)
+    condition = Column(String, nullable=True)
+    quantity = Column(Integer, nullable=False, default=0)
+    price = Column(Numeric(precision=10, scale=2), nullable=True)
+    payment_status = Column(String, nullable=True)  # e.g., "Paid", "Pending", "Unpaid"
+    receiver = Column(String, nullable=True)
+    receiver_contact = Column(String, nullable=True)
+    remark = Column(Text, nullable=True)
+
+    # Derived ProductID from ProductName + ProductType + CompanyID
+    product_id = Column(String, unique=True, nullable=False, index=True)
+
+    company_id = Column(String(10), ForeignKey("companies.id"), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    company = relationship("Company", back_populates="new_products")
+
+    def __repr__(self):
+        return f"<NewProduct(product_id={self.product_id}, name={self.product_name}, type={self.product_type})>"
+
+
+class BulkUpload(Base):
+    __tablename__ = "bulk_uploads"
+
+    id = Column(Integer, primary_key=True, index=True)
+    filename = Column(String, nullable=False)
+    upload_status = Column(String, default="processing")  # processing, completed, failed, partial
+    total_records = Column(Integer, default=0)
+    successful_records = Column(Integer, default=0)
+    failed_records = Column(Integer, default=0)
+    skipped_records = Column(Integer, default=0)  # For duplicates when skip is chosen
+    updated_records = Column(Integer, default=0)  # For duplicates when update is chosen
+    error_details = Column(Text, nullable=True)  # JSON string of errors
+    duplicate_action = Column(String, nullable=True)  # "skip", "update"
+
+    uploaded_by = Column(Integer, ForeignKey("managers.id"), nullable=False)
+    company_id = Column(String(10), ForeignKey("companies.id"), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    manager = relationship("Manager")
+    company = relationship("Company")
+
+    def __repr__(self):
+        return f"<BulkUpload(id={self.id}, filename={self.filename}, status={self.upload_status})>"
