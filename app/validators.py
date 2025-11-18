@@ -177,7 +177,7 @@ class BulkUploadRead(BaseModel):
 # CSV Row validation for bulk upload
 class CSVProductRow(BaseModel):
     product_name: str
-    product_type: str 
+    product_type: str
     location: Optional[str] = None
     serial_number: Optional[str] = None
     batch_number: Optional[str] = None
@@ -234,19 +234,19 @@ class CSVProductRow(BaseModel):
         # Convert any numeric type to string (for phone numbers)
         if isinstance(v, (int, float)):
             return str(int(v))  # Remove decimal places for phone numbers
-        
+
         # Handle string phone numbers with formatting
         v_str = str(v).strip()
         if not v_str:
             return None
-            
+
         # Remove common phone number formatting characters
         cleaned = v_str.replace('+', '').replace('-', '').replace(' ', '').replace('(', '').replace(')', '')
-        
+
         # Validate it's all digits
         if cleaned.isdigit():
             return cleaned
-        
+
         return v_str  # Return original if not a valid phone format
 
     @field_validator('expiry', mode='before')
