@@ -11,6 +11,9 @@ from sqlalchemy.exc import IntegrityError
 
 from app.models import NewProduct, BulkUpload, Manager
 from app.validators import NewProductCreate, NewProductUpdate, CSVProductRow, BulkUploadRead
+from app.controllers.audit import (
+    log_new_product_create, log_new_product_update, log_new_product_delete, get_model_dict
+)
 
 
 def generate_product_id(product_name: str, product_type: str, company_id: str) -> str:
@@ -23,7 +26,7 @@ def generate_product_id(product_name: str, product_type: str, company_id: str) -
     return f"{name_part}_{type_part}_{company_part}"
 
 
-def create_new_product(db: Session, product_in: NewProductCreate) -> NewProduct:
+def create_new_product(db: Session, product_in: NewProductCreate, manager_id: Optional[int] = None) -> NewProduct:
     """Create a new product with generated product_id"""
     # Generate product_id
     product_id = generate_product_id(
@@ -48,6 +51,11 @@ def create_new_product(db: Session, product_in: NewProductCreate) -> NewProduct:
         db.add(product)
         db.commit()
         db.refresh(product)
+
+        # Log audit trail
+        if manager_id:
+            log_new_product_create(db, product, manager_id)
+
         return product
     except IntegrityError as e:
         db.rollback()
@@ -81,9 +89,12 @@ def get_new_products(db: Session, company_id: Optional[str] = None, skip: int = 
     return query.offset(skip).limit(limit).all()
 
 
-def update_new_product(db: Session, product_id: int, product_in: NewProductUpdate, company_id: Optional[str] = None) -> NewProduct:
+def update_new_product(db: Session, product_id: int, product_in: NewProductUpdate, company_id: Optional[str] = None, manager_id: Optional[int] = None) -> NewProduct:
     """Update a new product"""
     product = get_new_product(db, product_id, company_id)
+
+    # Capture old values before update for audit
+    old_values = get_model_dict(product)
 
     update_data = product_in.model_dump(exclude_unset=True)
 
@@ -112,6 +123,11 @@ def update_new_product(db: Session, product_id: int, product_in: NewProductUpdat
     try:
         db.commit()
         db.refresh(product)
+
+        # Log audit trail
+        if manager_id:
+            log_new_product_update(db, product, old_values, manager_id)
+
         return product
     except IntegrityError:
         db.rollback()
@@ -121,9 +137,13 @@ def update_new_product(db: Session, product_id: int, product_in: NewProductUpdat
         )
 
 
-def delete_new_product(db: Session, product_id: int, company_id: Optional[str] = None) -> bool:
+def delete_new_product(db: Session, product_id: int, company_id: Optional[str] = None, manager_id: Optional[int] = None) -> bool:
     """Delete a new product"""
     product = get_new_product(db, product_id, company_id)
+
+    # Log audit trail before deletion
+    if manager_id:
+        log_new_product_delete(db, product, manager_id)
 
     db.delete(product)
     db.commit()
@@ -288,11 +308,19 @@ def process_csv_bulk_upload(
                         skipped_records += 1
                         continue
                     elif duplicate_action == "update":
+                        # Capture old values for audit
+                        old_values = get_model_dict(existing_product)
+
                         # Update existing product
                         for field, value in product_data.items():
                             if field != "company_id":  # Don't update company_id
                                 setattr(existing_product, field, value)
                         db.commit()
+                        db.refresh(existing_product)
+
+                        # Log audit trail for bulk update
+                        log_new_product_update(db, existing_product, old_values, manager_id, bulk_upload_id=bulk_upload.id)
+
                         updated_records += 1
                         continue
 
@@ -301,6 +329,11 @@ def process_csv_bulk_upload(
                 new_product = NewProduct(**product_data)
                 db.add(new_product)
                 db.commit()
+                db.refresh(new_product)
+
+                # Log audit trail for bulk create
+                log_new_product_create(db, new_product, manager_id, bulk_upload_id=bulk_upload.id)
+
                 successful_records += 1
 
             except Exception as e:

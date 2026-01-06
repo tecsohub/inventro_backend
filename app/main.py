@@ -8,6 +8,7 @@ from app.routes.manager import router as manager_router
 from app.routes.products import router as product_router
 from app.routes.new_products import router as new_product_router
 from app.routes.users import router as user_router
+from app.routes.audit import router as audit_router
 
 
 app = FastAPI()
@@ -26,3 +27,4 @@ app.include_router(manager_router)
 app.include_router(product_router)
 app.include_router(new_product_router)
 app.include_router(user_router)
+app.include_router(audit_router)

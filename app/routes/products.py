@@ -51,9 +51,11 @@ def read_product(product_id: int, db: Session = Depends(get_db), current_user: d
 @router.post("/", response_model=ProductRead, status_code=status.HTTP_201_CREATED, dependencies=[Depends(roles_required(["admin", "manager"]))])
 def create_new_product(product_in: ProductCreate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     user_obj = current_user['user']
+    manager_id = None
     if current_user['role'] == 'manager':
         # Managers can only create products for their own company
         product_in.company_id = user_obj.company_id
+        manager_id = user_obj.id
     elif current_user['role'] == 'admin':
         # Admins must specify company_id in the request.
         # The ProductCreate model already requires company_id.
@@ -62,7 +64,7 @@ def create_new_product(product_in: ProductCreate, db: Session = Depends(get_db),
     else: # Should not happen due to roles_required
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Operation not permitted")
 
-    return create_product(db, product_in)
+    return create_product(db, product_in, manager_id=manager_id)
 
 # ── UPDATE (admin, manager) ─────────────────────────────────────────────────
 
@@ -70,11 +72,13 @@ def create_new_product(product_in: ProductCreate, db: Session = Depends(get_db),
 def update_existing_product(product_id: int, update_in: ProductUpdate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     user_obj = current_user['user']
     company_id_to_filter = None
+    manager_id = None
     if current_user['role'] == 'manager':
         company_id_to_filter = user_obj.company_id
+        manager_id = user_obj.id
     # Admins can update any product, so no company_id_to_filter for them.
     # The get_product call within update_product will ensure manager can only update their company's product.
-    return update_product(db, product_id, update_in, company_id=company_id_to_filter)
+    return update_product(db, product_id, update_in, company_id=company_id_to_filter, manager_id=manager_id)
 
 # ── DELETE (admin, manager) ─────────────────────────────────────────────────
 
@@ -82,9 +86,11 @@ def update_existing_product(product_id: int, update_in: ProductUpdate, db: Sessi
 def remove_product(product_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     user_obj = current_user['user']
     company_id_to_filter = None
+    manager_id = None
     if current_user['role'] == 'manager':
         company_id_to_filter = user_obj.company_id
+        manager_id = user_obj.id
     # Admins can delete any product.
     # The get_product call within delete_product will ensure manager can only delete their company's product.
-    delete_product(db, product_id, company_id=company_id_to_filter)
+    delete_product(db, product_id, company_id=company_id_to_filter, manager_id=manager_id)
     return None

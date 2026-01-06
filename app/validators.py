@@ -256,3 +256,30 @@ class CSVProductRow(BaseModel):
             return None
         # Convert any type to string for date parsing
         return str(v) if v else None
+
+
+# Audit Trail Models
+class AuditTrailBase(BaseModel):
+    product_id: int
+    action_type: str  # "create", "update", "delete", "bulk_create", "bulk_update"
+    changes: str  # JSON string
+    changed_by: int
+    company_id: str
+    bulk_upload_id: Optional[int] = None
+
+
+class AuditTrailRead(AuditTrailBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class NewAuditTrailRead(AuditTrailBase):
+    id: int
+    product_unique_id: Optional[str] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

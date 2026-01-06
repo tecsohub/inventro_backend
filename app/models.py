@@ -175,3 +175,46 @@ class BulkUpload(Base):
 
     def __repr__(self):
         return f"<BulkUpload(id={self.id}, filename={self.filename}, status={self.upload_status})>"
+
+
+class AuditTrail(Base):
+    """Audit trail for Product model - logs all changes (create, update, delete)"""
+    __tablename__ = "audit_trail"
+
+    id = Column(Integer, primary_key=True, index=True)
+    product_id = Column(Integer, nullable=False, index=True)  # Reference to Product.id
+    action_type = Column(String, nullable=False)  # "create", "update", "delete", "bulk_create", "bulk_update"
+    changes = Column(Text, nullable=False)  # JSON string of all changes: {"field": {"old": x, "new": y}, ...}
+    changed_by = Column(Integer, ForeignKey("managers.id"), nullable=False)
+    company_id = Column(String(10), ForeignKey("companies.id"), nullable=False, index=True)
+    bulk_upload_id = Column(Integer, ForeignKey("bulk_uploads.id"), nullable=True)  # Reference for bulk operations
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    manager = relationship("Manager")
+    company = relationship("Company")
+    bulk_upload = relationship("BulkUpload")
+
+    def __repr__(self):
+        return f"<AuditTrail(id={self.id}, product_id={self.product_id}, action={self.action_type})>"
+
+
+class NewAuditTrail(Base):
+    """Audit trail for NewProduct model - logs all changes (create, update, delete)"""
+    __tablename__ = "new_audit_trail"
+
+    id = Column(Integer, primary_key=True, index=True)
+    product_id = Column(Integer, nullable=False, index=True)  # Reference to NewProduct.id
+    product_unique_id = Column(String, nullable=True)  # Store the product_id string for reference
+    action_type = Column(String, nullable=False)  # "create", "update", "delete", "bulk_create", "bulk_update"
+    changes = Column(Text, nullable=False)  # JSON string of all changes: {"field": {"old": x, "new": y}, ...}
+    changed_by = Column(Integer, ForeignKey("managers.id"), nullable=False)
+    company_id = Column(String(10), ForeignKey("companies.id"), nullable=False, index=True)
+    bulk_upload_id = Column(Integer, ForeignKey("bulk_uploads.id"), nullable=True)  # Reference for bulk operations
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    manager = relationship("Manager")
+    company = relationship("Company")
+    bulk_upload = relationship("BulkUpload")
+
+    def __repr__(self):
+        return f"<NewAuditTrail(id={self.id}, product_id={self.product_id}, action={self.action_type})>"

@@ -75,6 +75,7 @@ def create_new_product_endpoint(
 ):
     """Create a new product (admin, manager only)"""
     user_obj = current_user['user']
+    manager_id = None
 
     # Managers can only create products for their company
     if current_user['role'] == 'manager':
@@ -83,8 +84,9 @@ def create_new_product_endpoint(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Managers can only create products for their own company"
             )
+        manager_id = user_obj.id
 
-    return create_new_product(db, product)
+    return create_new_product(db, product, manager_id=manager_id)
 
 
 # ── UPDATE NEW PRODUCT ──────────────────────────────────────────────────────
@@ -98,12 +100,14 @@ def update_new_product_endpoint(
     """Update a new product (admin, manager only)"""
     user_obj = current_user['user']
     company_id_to_filter = None
+    manager_id = None
 
     # Managers can only update products of their company
     if current_user['role'] == 'manager':
         company_id_to_filter = user_obj.company_id
+        manager_id = user_obj.id
 
-    return update_new_product(db, product_id, product, company_id=company_id_to_filter)
+    return update_new_product(db, product_id, product, company_id=company_id_to_filter, manager_id=manager_id)
 
 
 # ── DELETE NEW PRODUCT ──────────────────────────────────────────────────────
@@ -116,12 +120,14 @@ def delete_new_product_endpoint(
     """Delete a new product (admin, manager only)"""
     user_obj = current_user['user']
     company_id_to_filter = None
+    manager_id = None
 
     # Managers can only delete products of their company
     if current_user['role'] == 'manager':
         company_id_to_filter = user_obj.company_id
+        manager_id = user_obj.id
 
-    success = delete_new_product(db, product_id, company_id=company_id_to_filter)
+    success = delete_new_product(db, product_id, company_id=company_id_to_filter, manager_id=manager_id)
     if success:
         return {"message": "Product deleted successfully"}
     else:
