@@ -7,7 +7,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import List, Optional, Any, Dict
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.models import AuditTrail, NewAuditTrail, Product, NewProduct
 
@@ -142,14 +142,40 @@ def get_product_audit_logs(
     limit: int = 100
 ) -> List[AuditTrail]:
     """Get audit logs for products, optionally filtered by company and/or product"""
-    query = db.query(AuditTrail).order_by(AuditTrail.created_at.desc())
+    query = (
+        db.query(AuditTrail)
+        .options(selectinload(AuditTrail.manager))
+        .order_by(AuditTrail.created_at.desc())
+    )
 
     if company_id:
         query = query.filter(AuditTrail.company_id == company_id)
     if product_id:
         query = query.filter(AuditTrail.product_id == product_id)
 
-    return query.offset(skip).limit(limit).all()
+    audits = query.offset(skip).limit(limit).all()
+
+    product_ids = [a.product_id for a in audits if a.product_id is not None]
+    products_by_id = {}
+    if product_ids:
+        products = db.query(Product).filter(Product.id.in_(product_ids)).all()
+        products_by_id = {p.id: p for p in products}
+
+    return [
+        {
+            "id": a.id,
+            "product_id": a.product_id,
+            "product_name": (products_by_id.get(a.product_id).part_number if products_by_id.get(a.product_id) else None),
+            "action_type": a.action_type,
+            "changes": a.changes,
+            "changed_by": a.changed_by,
+            "manager_name": (a.manager.name if a.manager else None),
+            "company_id": a.company_id,
+            "bulk_upload_id": a.bulk_upload_id,
+            "created_at": a.created_at,
+        }
+        for a in audits
+    ]
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -173,6 +199,7 @@ def log_new_product_create(
     audit = NewAuditTrail(
         product_id=product.id,
         product_unique_id=product.product_id,
+        product_name=product.product_name,
         action_type=action_type,
         changes=json.dumps(changes),
         changed_by=manager_id,
@@ -205,6 +232,7 @@ def log_new_product_update(
     audit = NewAuditTrail(
         product_id=product.id,
         product_unique_id=product.product_id,
+        product_name=product.product_name,
         action_type=action_type,
         changes=json.dumps(changes),
         changed_by=manager_id,
@@ -231,6 +259,7 @@ def log_new_product_delete(
     audit = NewAuditTrail(
         product_id=product.id,
         product_unique_id=product.product_id,
+        product_name=product.product_name,
         action_type="delete",
         changes=json.dumps(changes),
         changed_by=manager_id,
@@ -250,11 +279,31 @@ def get_new_product_audit_logs(
     limit: int = 100
 ) -> List[NewAuditTrail]:
     """Get audit logs for new products, optionally filtered by company and/or product"""
-    query = db.query(NewAuditTrail).order_by(NewAuditTrail.created_at.desc())
+    query = (
+        db.query(NewAuditTrail)
+        .options(selectinload(NewAuditTrail.manager))
+        .order_by(NewAuditTrail.created_at.desc())
+    )
 
     if company_id:
         query = query.filter(NewAuditTrail.company_id == company_id)
     if product_id:
         query = query.filter(NewAuditTrail.product_id == product_id)
 
-    return query.offset(skip).limit(limit).all()
+    audits = query.offset(skip).limit(limit).all()
+    return [
+        {
+            "id": a.id,
+            "product_id": a.product_id,
+            "product_unique_id": a.product_unique_id,
+            "product_name": a.product_name,
+            "action_type": a.action_type,
+            "changes": a.changes,
+            "changed_by": a.changed_by,
+            "manager_name": (a.manager.name if a.manager else None),
+            "company_id": a.company_id,
+            "bulk_upload_id": a.bulk_upload_id,
+            "created_at": a.created_at,
+        }
+        for a in audits
+    ]

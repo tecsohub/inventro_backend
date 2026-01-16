@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.controllers.audit import get_product_audit_logs, get_new_product_audit_logs
 from app.database import get_db
+from app.models import NewAuditTrail
 from app.utils import get_current_user, roles_required
 from app.validators import AuditTrailRead, NewAuditTrailRead
 
@@ -81,7 +82,7 @@ def list_new_product_audit_logs(
     limit: int = 100,
     db: Session = Depends(get_db),
     current_user: dict = Depends(get_current_user)
-):
+) -> List[NewAuditTrail]:
     """
     List audit logs for NewProduct model.
     - Managers see audit logs for their company only.

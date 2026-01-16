@@ -205,6 +205,7 @@ class NewAuditTrail(Base):
     id = Column(Integer, primary_key=True, index=True)
     product_id = Column(Integer, nullable=False, index=True)  # Reference to NewProduct.id
     product_unique_id = Column(String, nullable=True)  # Store the product_id string for reference
+    product_name = Column(String, nullable=False)
     action_type = Column(String, nullable=False)  # "create", "update", "delete", "bulk_create", "bulk_update"
     changes = Column(Text, nullable=False)  # JSON string of all changes: {"field": {"old": x, "new": y}, ...}
     changed_by = Column(Integer, ForeignKey("managers.id"), nullable=False)

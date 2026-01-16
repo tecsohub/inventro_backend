@@ -270,6 +270,8 @@ class AuditTrailBase(BaseModel):
 
 class AuditTrailRead(AuditTrailBase):
     id: int
+    manager_name: Optional[str] = None
+    product_name: Optional[str] = None
     created_at: datetime
 
     class Config:
@@ -279,6 +281,8 @@ class AuditTrailRead(AuditTrailBase):
 class NewAuditTrailRead(AuditTrailBase):
     id: int
     product_unique_id: Optional[str] = None
+    manager_name: Optional[str] = None
+    product_name: Optional[str] = None
     created_at: datetime
 
     class Config:
