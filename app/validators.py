@@ -257,6 +257,35 @@ class CSVProductRow(BaseModel):
         # Convert any type to string for date parsing
         return str(v) if v else None
 
+    @field_validator('serial_number', 'batch_number', 'lot_number', mode='before')
+    @classmethod
+    def normalize_identifier(cls, v):
+        # 1. Nulls stay null
+        if v is None:
+            return None
+
+        # 2. Explicitly reject booleans (bool is a subclass of int)
+        if isinstance(v, bool):
+            raise ValueError('identifier fields cannot be boolean')
+
+        # 3. Integers => string
+        if isinstance(v, int):
+            return str(v)
+
+        # 4. Floats from Excel (e.g. 12345.0)
+        if isinstance(v, float):
+            if v.is_integer():
+                return str(int(v))
+            raise ValueError('identifier fields must not contain decimal values')
+
+        # 5. Strings → stripped, empty collapsed to None
+        if isinstance(v, str):
+            v = v.strip()
+            return v if v else None
+
+        # 6. Anything else is invalid at the ingestion boundary
+        raise ValueError(f'invalid type for identifier field: {type(v).__name__}')
+
 
 # Audit Trail Models
 class AuditTrailBase(BaseModel):

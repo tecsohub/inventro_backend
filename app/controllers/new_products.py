@@ -161,7 +161,8 @@ def parse_csv_date(date_str: str) -> Optional[datetime]:
         "%Y-%m-%d %H:%M:%S",
         "%m/%d/%Y",
         "%d/%m/%Y",
-        "%Y/%m/%d"
+        "%Y/%m/%d",
+        "%d-%m-%Y"
     ]
 
     for fmt in formats:
