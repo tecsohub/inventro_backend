@@ -34,7 +34,7 @@ def create_new_product(db: Session, product_in: NewProductCreate, manager_id: Op
     # Generate product_id
     product_id = generate_product_id(
         product_in.product_name,
-        product_in.product_type,
+        product_in.batch_number,
         product_in.company_id
     )
 
