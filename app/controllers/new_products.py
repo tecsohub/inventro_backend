@@ -1,4 +1,5 @@
 import json
+import random
 import pandas as pd
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
@@ -16,14 +17,16 @@ from app.controllers.audit import (
 )
 
 
-def generate_product_id(product_name: str, product_type: str, company_id: str) -> str:
-    """Generate unique product_id from ProductName + ProductType + CompanyID"""
+def generate_product_id(product_name: str, batch_num: str, company_id: str) -> str:
+    """Generate unique product_id from ProductName + Batch Number + CompanyID"""
     # Clean and format the components
     name_part = product_name.strip().replace(" ", "_").upper()
-    type_part = product_type.strip().replace(" ", "_").upper()
+    batch_num_ = batch_num.strip().replace(" ", "_").upper()
     company_part = company_id.strip().upper()
+    characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+    random_str = ''.join(random.choice(characters) for _ in range(5))
 
-    return f"{name_part}_{type_part}_{company_part}"
+    return f"{name_part}_{batch_num_}_{company_part}_{random_str}"
 
 
 def create_new_product(db: Session, product_in: NewProductCreate, manager_id: Optional[int] = None) -> NewProduct:
@@ -101,8 +104,8 @@ def update_new_product(db: Session, product_id: int, product_in: NewProductUpdat
     # If product_name or product_type is being updated, regenerate product_id
     if "product_name" in update_data or "product_type" in update_data:
         new_name = update_data.get("product_name", product.product_name)
-        new_type = update_data.get("product_type", product.product_type)
-        new_product_id = generate_product_id(new_name, new_type, product.company_id)
+        batch_num = update_data.get("batch_number", product.batch_number)
+        new_product_id = generate_product_id(new_name, batch_num, product.company_id)
 
         # Check if new product_id conflicts with existing products
         existing = db.query(NewProduct).filter(
@@ -112,7 +115,7 @@ def update_new_product(db: Session, product_id: int, product_in: NewProductUpdat
         if existing:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Product with combination '{new_name}' + '{new_type}' already exists for this company"
+                detail=f"Product with combination '{new_name}' + '{batch_num}' already exists for this company"
             )
 
         update_data["product_id"] = new_product_id
