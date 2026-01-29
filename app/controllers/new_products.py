@@ -23,10 +23,11 @@ def generate_product_id(product_name: str, batch_num: str, company_id: str) -> s
     name_part = product_name.strip().replace(" ", "_").upper()
     batch_num_ = batch_num.strip().replace(" ", "_").upper()
     company_part = company_id.strip().upper()
-    characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
-    random_str = ''.join(random.choice(characters) for _ in range(5))
+    # characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+    # random_str = ''.join(random.choice(characters) for _ in range(5))
 
-    return f"{name_part}_{batch_num_}_{company_part}_{random_str}"
+    return f"{name_part}_{batch_num_}_{company_part}"
+    # return f"{name_part}_{batch_num_}_{company_part}_{random_str}"
 
 
 def create_new_product(db: Session, product_in: NewProductCreate, manager_id: Optional[int] = None) -> NewProduct:
