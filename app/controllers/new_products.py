@@ -299,7 +299,7 @@ def process_csv_bulk_upload(
                 # Generate product_id
                 product_id = generate_product_id(
                     csv_row.product_name,
-                    csv_row.product_type,
+                    csv_row.batch_number,
                     company_id
                 )
 
